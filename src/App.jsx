@@ -40,6 +40,7 @@ const initialSubscriptions = [
 function App() {
   const [subscriptions, setSubscriptions] = useState(initialSubscriptions);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [formError, setFormError] = useState('');
   const [formData, setFormData] = useState({
     name: '',
     cost: '',
@@ -49,8 +50,8 @@ function App() {
   });
 
   // Calculate total monthly cost
-  const totalMonthlyCost = subscriptions.reduce((total, sub) => {
-    const monthlyCost = sub.billingCycle === 'Yearly' ? sub.cost / 12 : sub.cost;
+  const totalMonthlyCost = subscriptions.reduce((total, subscription) => {
+    const monthlyCost = subscription.billingCycle === 'Yearly' ? subscription.cost / 12 : subscription.cost;
     return total + monthlyCost;
   }, 0);
 
@@ -69,12 +70,12 @@ function App() {
 
     // Validate all fields are filled
     if (!formData.name || !formData.cost || !formData.nextPayment || !formData.paymentMethod) {
-      alert('Please fill in all fields');
+      setFormError('Please fill in all fields');
       return;
     }
 
     const newSubscription = {
-      id: Date.now(),
+      id: crypto.randomUUID(),
       name: formData.name,
       cost: parseFloat(formData.cost),
       billingCycle: formData.billingCycle,
@@ -90,6 +91,7 @@ function App() {
       nextPayment: '',
       paymentMethod: '',
     });
+    setFormError('');
     setShowAddForm(false);
   };
 
@@ -166,6 +168,12 @@ function App() {
               </div>
 
               <form onSubmit={handleAddSubscription} className="space-y-4">
+                {formError && (
+                  <div className="bg-red-500/10 border border-red-500 text-red-500 px-4 py-3 rounded-lg text-sm">
+                    {formError}
+                  </div>
+                )}
+                
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">
                     Service Name
@@ -258,7 +266,7 @@ function App() {
         )}
 
         {/* Subscriptions Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {subscriptions.map((subscription) => (
             <div
               key={subscription.id}
