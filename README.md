@@ -1,3 +1,3 @@
 # SubsManager
 
-This is the README file for the SubsManager project.
+This is the initial commit for the SubsManager repository.
