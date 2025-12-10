@@ -65,8 +65,13 @@ def _generate_csv_response(project):
     tasks = Task.objects.filter(project=project).select_related('assignee', 'project')
     
     # Create the HttpResponse object with CSV header
+    # Sanitize project ID (ensure it's an integer)
+    safe_project_id = int(project.id)
+    timestamp = timezone.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"tasks_export_{safe_project_id}_{timestamp}.csv"
+    
     response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = f'attachment; filename="tasks_export_{project.id}_{timezone.now().strftime("%Y%m%d_%H%M%S")}.csv"'
+    response['Content-Disposition'] = f'attachment; filename="{filename}"'
     
     writer = csv.writer(response)
     
@@ -117,10 +122,12 @@ def download_export(request, project_id, export_id):
     if not export_job.file_path or not os.path.exists(export_job.file_path):
         raise Http404('Export file not found.')
     
-    # Serve the file
+    # Serve the file with proper resource management
+    file_handle = open(export_job.file_path, 'rb')
     response = FileResponse(
-        open(export_job.file_path, 'rb'),
-        content_type='text/csv'
+        file_handle,
+        content_type='text/csv',
+        as_attachment=True
     )
     filename = os.path.basename(export_job.file_path)
     response['Content-Disposition'] = f'attachment; filename="{filename}"'
