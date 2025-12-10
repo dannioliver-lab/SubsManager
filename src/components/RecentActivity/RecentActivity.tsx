@@ -7,6 +7,7 @@ interface Activity {
   title: string;
   description: string;
   date: string;
+  timestamp: string;
   type: 'payment' | 'renewal' | 'cancellation';
 }
 
@@ -17,6 +18,7 @@ const mockActivities: Activity[] = [
     title: 'Netflix Premium',
     description: 'Monthly payment processed',
     date: '2 hours ago',
+    timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
     type: 'payment'
   },
   {
@@ -24,6 +26,7 @@ const mockActivities: Activity[] = [
     title: 'Spotify Family',
     description: 'Subscription renewed',
     date: '1 day ago',
+    timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
     type: 'renewal'
   },
   {
@@ -31,6 +34,7 @@ const mockActivities: Activity[] = [
     title: 'Adobe Creative Cloud',
     description: 'Payment processed',
     date: '3 days ago',
+    timestamp: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
     type: 'payment'
   }
 ];
@@ -102,7 +106,7 @@ export function RecentActivity() {
               <h3 className="activity-title">{activity.title}</h3>
               <p className="activity-description">{activity.description}</p>
             </div>
-            <time className="activity-date" dateTime={activity.date}>
+            <time className="activity-date" dateTime={activity.timestamp}>
               {activity.date}
             </time>
           </article>
