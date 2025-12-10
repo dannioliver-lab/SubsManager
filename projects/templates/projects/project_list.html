@@ -1,0 +1,37 @@
+{% extends 'projects/base.html' %}
+
+{% block title %}Projects{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Projects</h2>
+    
+    {% if projects %}
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for project in projects %}
+                <tr>
+                    <td><strong>{{ project.name }}</strong></td>
+                    <td>{{ project.description|truncatewords:15 }}</td>
+                    <td>{{ project.created_at|date:"Y-m-d" }}</td>
+                    <td>
+                        <a href="{% url 'project_detail' project.id %}" class="btn">View</a>
+                        <a href="{% url 'project_settings' project.id %}" class="btn">Settings</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No projects found. Create one in the admin panel.</p>
+    {% endif %}
+</div>
+{% endblock %}

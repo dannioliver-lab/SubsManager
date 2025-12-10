@@ -1,0 +1,79 @@
+{% extends 'projects/base.html' %}
+
+{% block title %}Project Settings - {{ project.name }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Project Settings: {{ project.name }}</h2>
+    <p>{{ project.description }}</p>
+    
+    <div class="export-section">
+        <h3>Export Project Data</h3>
+        
+        <div class="export-info">
+            <strong>Export to CSV</strong><br>
+            Export all tasks to a CSV file including: Task ID, Title, Assignee, Status, Created Date, and Due Date.
+            <br><br>
+            <strong>Note:</strong> Exports with 1000+ tasks will be processed in the background. You will receive an email with a download link when ready.
+        </div>
+        
+        <form method="post" action="{% url 'export_tasks' project.id %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-success">Export Tasks to CSV</button>
+        </form>
+    </div>
+    
+    {% if recent_exports %}
+    <div class="export-section">
+        <h3>Recent Exports</h3>
+        <table>
+            <thead>
+                <tr>
+                    <th>Export ID</th>
+                    <th>Status</th>
+                    <th>Task Count</th>
+                    <th>Created</th>
+                    <th>Completed</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for export in recent_exports %}
+                <tr>
+                    <td>#{{ export.id }}</td>
+                    <td>
+                        <span class="status-badge status-{{ export.status }}">
+                            {{ export.get_status_display }}
+                        </span>
+                    </td>
+                    <td>{{ export.task_count }}</td>
+                    <td>{{ export.created_at|date:"Y-m-d H:i" }}</td>
+                    <td>
+                        {% if export.completed_at %}
+                            {{ export.completed_at|date:"Y-m-d H:i" }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if export.status == 'completed' %}
+                            <a href="{% url 'download_export' project.id export.id %}" class="btn">Download</a>
+                        {% elif export.status == 'failed' %}
+                            <span style="color: #721c24;">{{ export.error_message|truncatewords:10 }}</span>
+                        {% else %}
+                            <span style="color: #856404;">Processing...</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% endif %}
+    
+    <div style="margin-top: 30px;">
+        <a href="{% url 'project_detail' project.id %}" class="btn">Back to Project</a>
+        <a href="{% url 'project_list' %}" class="btn">All Projects</a>
+    </div>
+</div>
+{% endblock %}
